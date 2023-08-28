@@ -125,6 +125,14 @@ func (vg vGamepad) RightStickMoveY(value float32) error {
 	return vg.sendStickAxisEvent(absRY, value)
 }
 
+func (vg vGamepad) LeftTriggerMove(value float32) error {
+	return vg.sendStickAxisEvent(absZ, value)
+}
+
+func (vg vGamepad) RightTriggerMove(value float32) error {
+	return vg.sendStickAxisEvent(absRZ, value)
+}
+
 func (vg vGamepad) RightStickMove(x, y float32) error {
 	values := map[uint16]float32{}
 	values[absRX] = x
@@ -337,4 +345,8 @@ func createVGamepadDevice(path string, name []byte, vendor uint16, product uint1
 // Takes in a normalized value (-1.0:1.0) and return an event value
 func denormalizeInput(value float32) int32 {
 	return int32(value * MaximumAxisValue)
+}
+
+func (vg vGamepad) FetchSyspath() (string, error) {
+	return fetchSyspath(vg.deviceFile)
 }
