@@ -61,6 +61,15 @@ type Gamepad interface {
 	// HatRelease will issue a hat-release event in the given direction
 	HatRelease(direction HatDirection) error
 
+	// LeftTriggerMove depresses the trigger an amount equal to value
+	LeftTriggerMove(value float32) error
+
+	// RightTriggerMove depresses the trigger an amount equal to value
+	RightTriggerMove(value float32) error
+
+	// FetchSysPath will return the syspath to the device file.
+	FetchSyspath() (string, error)
+
 	io.Closer
 }
 
