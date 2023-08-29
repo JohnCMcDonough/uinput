@@ -306,6 +306,9 @@ func createVGamepadDevice(path string, name []byte, vendor uint16, product uint1
 		absHat0Y,
 	}
 
+	var absMax [absSize]int32
+	var absMin [absSize]int32
+
 	deviceFile, err := createDeviceFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create virtual gamepad device: %v", err)
@@ -333,11 +336,18 @@ func createVGamepadDevice(path string, name []byte, vendor uint16, product uint1
 		return nil, fmt.Errorf("failed to register absolute event input device: %v", err)
 	}
 
-	for _, event := range absEvents {
+	for i, event := range absEvents {
 		err = ioctl(deviceFile, uiSetAbsBit, uintptr(event))
 		if err != nil {
 			_ = deviceFile.Close()
 			return nil, fmt.Errorf("failed to register absolute event %v: %v", event, err)
+		}
+		if event != absZ && event != absRZ {
+			absMax[i] = MaximumAxisValue
+			absMin[i] = -MaximumAxisValue
+		} else {
+			absMax[i] = MaximumAxisValue
+			absMin[i] = 0
 		}
 	}
 
@@ -348,7 +358,10 @@ func createVGamepadDevice(path string, name []byte, vendor uint16, product uint1
 				Bustype: busUsb,
 				Vendor:  vendor,
 				Product: product,
-				Version: 1}})
+				Version: 1},
+			Absmax: absMax,
+			Absmin: absMin,
+		})
 }
 
 // Takes in a normalized value (-1.0:1.0) and return an event value
